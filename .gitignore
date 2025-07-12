@@ -1,0 +1,31 @@
+# Ignore CMake build artifacts
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+
+# Ignore build directories
+build/
+
+# Ignore backup files
+*~
+*.swp
+
+# Ignore compiled object files
+*.o
+*.obj
+
+# Ignore executables
+*.exe
+*.out
+*.a
+*.so
+*.dll
+*.dylib
+
+# Ignore logs and temporary files
+*.log
+
+# Ignore glad files
+lib/src/glad.c/
+lib/include/glad/
