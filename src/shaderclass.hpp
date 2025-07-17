@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 #include <string>
 
 class Shader

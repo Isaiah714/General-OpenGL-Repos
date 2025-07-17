@@ -38,20 +38,20 @@ Shader::Shader( const char * vertex_path, const char * fragment_path )
   unsigned int vertex_shader, fragment_shader;
 
   vertex_shader = glCreateShader( GL_VERTEX_SHADER );
-  glShaderSource ( vertex_shader, 1, &vshader_code, NULL );
-  glCompileShader( vertex_shader                         );
-  getCompileStatus( vertex_shader, "VERTEX" );
+  glShaderSource  ( vertex_shader, 1, &vshader_code, NULL );
+  glCompileShader ( vertex_shader                         );
+  getCompileStatus( vertex_shader, "VERTEX"               );
 
   fragment_shader = glCreateShader( GL_FRAGMENT_SHADER );
-  glShaderSource ( fragment_shader, 1, &fshader_code, NULL );
-  glCompileShader( fragment_shader                         );
-  getCompileStatus( fragment_shader, "FRAGMENT" );
+  glShaderSource  ( fragment_shader, 1, &fshader_code, NULL );
+  glCompileShader ( fragment_shader                         );
+  getCompileStatus( fragment_shader, "FRAGMENT"             );
 
   shader_id = glCreateProgram();
-  glAttachShader( shader_id, vertex_shader   );
-  glAttachShader( shader_id, fragment_shader );
-  glLinkProgram ( shader_id                  );
-  getCompileStatus( shader_id, "PROGRAM" );
+  glAttachShader  ( shader_id, vertex_shader   );
+  glAttachShader  ( shader_id, fragment_shader );
+  glLinkProgram   ( shader_id                  );
+  getCompileStatus( shader_id, "PROGRAM"       );
   
   glDeleteShader( vertex_shader   );
   glDeleteShader( fragment_shader );
