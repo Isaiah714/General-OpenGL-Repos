@@ -1,6 +1,4 @@
-#include "shaderclass.hpp"
-
-#include "../lib/include/stb_image/stb_image.h"
+#include "textureclass.hpp"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
@@ -84,26 +82,14 @@ int main()
   glEnableVertexAttribArray( 2 );
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  ///////////////////////////////////CREATING TEXTURES HERE/////////////////////////////////////////////
-  // Texture coordinates to tell opengl where to render the texture on ( range: (0,0) - (1,1) )
-  float texture_coordinates[] =
-  {
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-    0.5f, 1.0f
-  };
+  ///////////////////////////////////CREATING TEXTURES HERE//////////////////////////////////////////////
   
   // Creating texuture ID to bind its data for opengl to recognize
-  unsigned int texture_id, texture_id2;
+  /*unsigned int texture_id, texture_id2;
 
-  // Flips the overlapping texture 
-  stbi_set_flip_vertically_on_load( true );
-
-  // Same steps when creating shaders applies to creating textures
   glGenTextures( 1, &texture_id            );
   glBindTexture( GL_TEXTURE_2D, texture_id );
 
-  // Setting the texture wrapping/filtering options (on currently bound texutre object)
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT     );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT     );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -112,7 +98,7 @@ int main()
   // Creating arguments for stbi_load
   int width, height, nr_channel;
 
-  // stbi_load loads texture into program
+  
   unsigned char * data = stbi_load(
                                     "../textures/container.jpg",
                                     &width,
@@ -193,7 +179,16 @@ int main()
   // lets opengl know where each samplers belong to which texture unit
   shader.use();
   shader.setInt( "texture_id",  0 );
-  shader.setInt( "texture_id2", 1 );
+  shader.setInt( "texture_id2", 1 );*/
+
+  Texture texture_obj1( "crate", 0 );
+  texture_obj1.loadTexture( "../textures/container.jpg" );
+  texture_obj1.getTextureLocation( shader );
+
+  Texture texture_obj2( "awesomeface", 1 );
+  texture_obj2.overlapTexture( "../textures/awesomeface.png" );
+  texture_obj2.getTextureLocation( shader );
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////
@@ -204,11 +199,14 @@ int main()
     glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
     glClear     ( GL_COLOR_BUFFER_BIT    );
 
-    glActiveTexture( GL_TEXTURE0 );
+    /*glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, texture_id );
 
     glActiveTexture( GL_TEXTURE1 );
-    glBindTexture( GL_TEXTURE_2D, texture_id2 );
+    glBindTexture( GL_TEXTURE_2D, texture_id2 );*/
+
+    texture_obj1.activateTexture();
+    texture_obj2.activateTexture();
 
     shader.use();
 
