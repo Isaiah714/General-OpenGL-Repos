@@ -84,103 +84,6 @@ int main()
 
   ///////////////////////////////////CREATING TEXTURES HERE//////////////////////////////////////////////
   
-  // Creating texuture ID to bind its data for opengl to recognize
-  /*unsigned int texture_id, texture_id2;
-
-  glGenTextures( 1, &texture_id            );
-  glBindTexture( GL_TEXTURE_2D, texture_id );
-
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT     );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT     );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-  // Creating arguments for stbi_load
-  int width, height, nr_channel;
-
-  
-  unsigned char * data = stbi_load(
-                                    "../textures/container.jpg",
-                                    &width,
-                                    &height,
-                                    &nr_channel,
-                                    0 
-                                  );
-
-  // Checking if texture loaded successfully
-  if( data )
-  {
-    glTexImage2D    (
-                      GL_TEXTURE_2D,
-                      0,
-                      GL_RGB,
-                      width,
-                      height,
-                      0,
-                      GL_RGB,
-                      GL_UNSIGNED_BYTE,
-                      data
-                    );
-
-    glGenerateMipmap( GL_TEXTURE_2D );
-  }
-  else
-  {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-
-  // Image is freed from memory
-  stbi_image_free( data );
-  
-  // Creating a second texture (awesome face texture)
-  glGenTextures( 1, &texture_id2            );
-  glBindTexture( GL_TEXTURE_2D, texture_id2 );
-
-  // Setting the texture wrapping/filtering options
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT     );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT     );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-  // load texture into program
-  data = stbi_load(
-                    "../textures/awesomeface.png",
-                    &width,
-                    &height,
-                    &nr_channel,
-                    0
-                  );
-
-  if( data )
-  {
-    glTexImage2D    (
-                      GL_TEXTURE_2D,
-                      0,
-                      GL_RGBA,
-                      width,
-                      height,
-                      0,
-                      GL_RGBA,
-                      GL_UNSIGNED_BYTE,
-                      data
-                    );
-
-    glGenerateMipmap( GL_TEXTURE_2D );
-
-  }
-  else
-  {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-  
-  // Image is freed from memory
-  stbi_image_free( data );
-
-  // lets opengl know where each samplers belong to which texture unit
-  shader.use();
-  shader.setInt( "texture_id",  0 );
-  shader.setInt( "texture_id2", 1 );*/
-
   Texture texture_obj1( "crate", 0 );
   texture_obj1.loadTexture( "../textures/container.jpg" );
   texture_obj1.getTextureLocation( shader );
@@ -198,12 +101,6 @@ int main()
 
     glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
     glClear     ( GL_COLOR_BUFFER_BIT    );
-
-    /*glActiveTexture( GL_TEXTURE0 );
-    glBindTexture( GL_TEXTURE_2D, texture_id );
-
-    glActiveTexture( GL_TEXTURE1 );
-    glBindTexture( GL_TEXTURE_2D, texture_id2 );*/
 
     texture_obj1.activateTexture();
     texture_obj2.activateTexture();
