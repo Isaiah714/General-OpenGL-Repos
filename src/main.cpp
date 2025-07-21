@@ -1,3 +1,6 @@
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "textureclass.hpp"
 
 #define WINDOW_WIDTH 800
@@ -43,47 +46,15 @@ int main()
   }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
   ////////////////////////////PASSING DATA TO SHADERS && CREATING SHADERS HERE////////////////////////////
   Shader shader( "../shaders/vertexshader.vs", "../shaders/fragmentshader.fs" );
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  float vertices[] =
-  {  //  Vertices             Color         texture coords
-     0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right
-     0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // bottom left
-    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // top left
-  };
 
-  int indices[] = 
-  {
-    0, 1, 3,
-    1, 2, 3
-  };
 
-  unsigned int VAO, VBO, EBO;
-  
-  glGenVertexArrays( 1, &VAO );
-  glGenBuffers     ( 1, &VBO );
-  glGenBuffers     ( 1, &EBO );
-
-  glBindVertexArray( VAO );
-  glBindBuffer( GL_ARRAY_BUFFER, VBO                                                );
-  glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_STATIC_DRAW       );
-  glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, EBO                                        );
-  glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( indices ), indices, GL_STATIC_DRAW );
-
-  glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0 ); // side not: 2nd argument specifies the dimension of a vector being used
-  glEnableVertexAttribArray( 0 );
-
-  glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float) ) ); // these two fuctions are using vec3: x, y, z && r, g, b
-  glEnableVertexAttribArray( 1 );
-
-  glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof( float ), (void*)(6 * sizeof(float) ) ); // this function is using a vec2: x, y
-  glEnableVertexAttribArray( 2 );
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  ///////////////////////////////////CREATING TEXTURES HERE//////////////////////////////////////////////
-  
+  ///////////////////////////////////CREATING TEXTURES HERE///////////////////////////////////////////////
   Texture texture_obj1( "crate", 0 );
   texture_obj1.loadTexture( "../textures/container.jpg" );
   texture_obj1.getTextureLocation( shader );
@@ -91,10 +62,34 @@ int main()
   Texture texture_obj2( "awesomeface", 1 );
   texture_obj2.overlapTexture( "../textures/awesomeface.png" );
   texture_obj2.getTextureLocation( shader );
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////
+
+  ////////////////////////////TRANSLATIONS, SCALING, AND ROTATIONS HERE///////////////////////////////////
+  // Important Note: when multiplying matrices, it is important to multiply each modification in order.
+  // It is important to do scaling first, rotation second, and translation third. Otherwise the matrix 
+  // product will be prone to runtime errors when implementing the code.
+
+  // Created a vector here and the last attribute is set to 1.0f to keep the object 2D
+  glm::vec4 vec( 1.0f, 0.0f, 0.0f, 1.0f );
+
+  // We initialize the trans to an indentity matrix.
+  // This is a starting point when translating a matrix
+  glm::mat4 trans = glm::mat4( 1.0f );
+
+  // trans is then intialized to the translate function which would allow the object
+  // to move from (1,0,0) to (2,1,0).
+  trans = glm::translate( trans, glm::vec3( 1.0f, 1.0f, 0.0f ) );
+
+  // This is where the object would actually move on the screen.
+  vec = trans * vec;
+  std::cout << vec.x << vec.y << vec.z << std::endl;
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+  /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////////
   while( !(glfwWindowShouldClose( window ) ) )
   {
     processInput( window );
@@ -105,9 +100,16 @@ int main()
     texture_obj1.activateTexture();
     texture_obj2.activateTexture();
 
-    shader.use();
+    glm::mat4 transR = glm::mat4( 1.0f );
+    transR = glm::translate( transR, glm::vec3( 0.5f, -0.5f, 0.0f ) );
+    transR = glm::rotate( transR, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0 ) );
 
-    glBindVertexArray( VAO                                 );
+    shader.use();
+    shader.bindArray();
+
+    unsigned int transform_loc = glGetUniformLocation( shader.shader_id, "transform" );
+    glUniformMatrix4fv( transform_loc, 1, GL_FALSE, glm::value_ptr( transR ) );
+
     glDrawElements   ( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
 
     glfwSwapBuffers( window );
@@ -118,6 +120,8 @@ int main()
   return 0;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 //////////////////////////////////////////FUNCTION DEFINITIONS////////////////////////////////////////////
 void processInput( GLFWwindow *window )

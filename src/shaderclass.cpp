@@ -55,11 +55,49 @@ Shader::Shader( const char * vertex_path, const char * fragment_path )
   
   glDeleteShader( vertex_shader   );
   glDeleteShader( fragment_shader );
+
+  float vertices[] =
+  {  //  Vertices             Color         texture coords
+     0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right
+     0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // bottom left
+    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // top left
+  };
+
+  int indices[] = 
+  {
+    0, 1, 3,
+    1, 2, 3
+  };
+  
+  glGenVertexArrays( 1, &VAO__ );
+  glGenBuffers     ( 1, &VBO__ );
+  glGenBuffers     ( 1, &EBO__ );
+
+  glBindVertexArray( VAO__ );
+  glBindBuffer( GL_ARRAY_BUFFER, VBO__                                                );
+  glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_STATIC_DRAW         );
+  glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, EBO__                                        );
+  glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( indices ), indices, GL_STATIC_DRAW   );
+
+  glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0 ); // side not: 2nd argument specifies the dimension of a vector being used
+  glEnableVertexAttribArray( 0 );
+
+  glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float) ) ); // these two fuctions are using vec3: x, y, z && r, g, b
+  glEnableVertexAttribArray( 1 );
+
+  glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof( float ), (void*)(6 * sizeof(float) ) ); // this function is using a vec2: x, y
+  glEnableVertexAttribArray( 2 );
 }
 
 void Shader::use()
 {
   glUseProgram( shader_id );
+}
+
+void Shader::bindArray()
+{
+  glBindVertexArray( VAO__ );
 }
 
 void Shader::setInt( const std::string & name, int value ) const
