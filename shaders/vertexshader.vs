@@ -8,10 +8,14 @@ out vec3 ourColor;
 out vec2 TextureCoord;
 
 uniform mat4 transform;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-  gl_Position = transform * vec4( vPos, 1.0 );
+  // Need to multiply the matrix from right to left since opengl is right handed
+  gl_Position = projection * view * model * vec4(vPos, 1.0);
   ourColor = vColor;
   TextureCoord = aTexture;
 }
