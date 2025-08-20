@@ -1,3 +1,5 @@
+#include <glm/glm.hpp>
+
 #include "shaderclass.hpp"
 
 Shader::Shader( const char * vertex_path, const char * fragment_path )
@@ -134,8 +136,8 @@ Shader::Shader( const char * vertex_path, const char * fragment_path )
   //glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), (void*)(6 * sizeof(float) ) ); // this function is using a vec2: x, y
   //glEnableVertexAttribArray( 2 );
 
-  glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float ) ) );
-  glEnableVertexAttribArray( 1 );
+  glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float ) ) );
+  glEnableVertexAttribArray( 2 );
 }
 
 void Shader::use()

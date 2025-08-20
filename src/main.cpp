@@ -11,7 +11,7 @@ void framebuffer_size_callback( GLFWwindow * window, int width, int height );
 
 int main()
 {
-////////////////////////////////////CREATING WINDOWS && INTIALIZING GLAD AND GLFW/////////////////////////
+  ////////////////////////////////////CREATING WINDOWS && INTIALIZING GLAD AND GLFW/////////////////////////
   if( !glfwInit() )
   {
     std::cout << "There was error in initializing GLFW" << std::endl;
@@ -44,23 +44,36 @@ int main()
     glfwTerminate();
     return -1;
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+  glEnable( GL_DEPTH_TEST );
 
   ////////////////////////////PASSING DATA TO SHADERS && CREATING SHADERS HERE////////////////////////////
   Shader shader( "../shaders/vertexshader.vs", "../shaders/fragmentshader.fs" );
+
+  glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
+};
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
   ///////////////////////////////////CREATING TEXTURES HERE///////////////////////////////////////////////
-  Texture texture_obj1( "crate", 0 );
-  texture_obj1.loadTexture( "../textures/container.jpg" );
+  Texture texture_obj1( "metal", 0 );
+  texture_obj1.loadTexture( "../textures/tiles.jpg" );
   texture_obj1.getTextureLocation( shader );
 
-  Texture texture_obj2( "awesomeface", 1 );
-  texture_obj2.overlapTexture( "../textures/awesomeface.png" );
+  Texture texture_obj2( "tennis", 1 );
+  texture_obj2.overlapTexture( "../textures/supamario.png" );
   texture_obj2.getTextureLocation( shader );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,17 +102,17 @@ int main()
 
   ///////////////////////////////////////////GOING 3D/////////////////////////////////////////////////////
   // This is the model matrix where you're able to perform rotation, scale, and translation.
-  glm::mat4 model = glm::mat4( 1.0f );
+  //glm::mat4 model = glm::mat4( 1.0f );
   //model = glm::rotate( model, glm::radians( -55.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
   
   // This is the view matrix where you're moving the camera away from the object specified by the third argument in glm::vec3.
-  glm::mat4 view( 1.0f );
-  view = glm::translate( view, glm::vec3( 0.0f, 0.0f, -3.0f ) );
+  //glm::mat4 view( 1.0f );
+  //view = glm::translate( view, glm::vec3( 0.0f, 0.0f, -3.0f ) );
   
   // This is the projection matrix where it creates a fustrum (a space used to render objects on)
   // and if outside of the fustrum, objects become clipped preventing from being rendered onto the screen
-  glm::mat4 projection;
-  projection = glm::perspective( glm::radians( 45.0f ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f );
+  //glm::mat4 projection;
+  //projection = glm::perspective( glm::radians( 45.0f ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////////
@@ -108,7 +121,7 @@ int main()
     processInput( window );
 
     glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); 
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     texture_obj1.activateTexture();
     texture_obj2.activateTexture();
@@ -137,8 +150,16 @@ int main()
     glUniformMatrix4fv( projection_loc, 1, GL_FALSE, glm::value_ptr( projection ) );
 
     //glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+    for( unsigned int i = 0; i < 10; ++i )
+    {
+      glm::mat4 model = glm::mat4( 1.0f );
+      model = glm::translate( model, cubePositions[i] );
+      float angle = ( 20.0f * i ) + 20.0f;
+      model = glm::rotate( model, (float)glfwGetTime() * glm::radians( angle ), glm::vec3( 1.0f, 0.3f, 0.5f ) );
+      glUniformMatrix4fv( model_loc, 1, GL_FALSE, glm::value_ptr( model ) );
 
-    glDrawArrays( GL_TRIANGLES, 0, 36 );
+      glDrawArrays( GL_TRIANGLES, 0, 36 );
+    }
 
     glfwSwapBuffers( window );
     glfwPollEvents();
