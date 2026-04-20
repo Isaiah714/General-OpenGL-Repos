@@ -2,12 +2,23 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "textureclass.hpp"
+#include "camera.hpp"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
 
 void processInput( GLFWwindow * window );
 void framebuffer_size_callback( GLFWwindow * window, int width, int height );
+void mouseCallback( GLFWwindow * window, double xPos, double yPos );
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+/* For mouse cursor calculation */
+float lastX = WINDOW_WIDTH / 2;
+float lastY = WINDOW_HEIGHT / 2;
+
+Camera camera;
 
 int main()
 {
@@ -101,55 +112,54 @@ int main()
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   ///////////////////////////////////////////GOING 3D/////////////////////////////////////////////////////
-  // This is the model matrix where you're able to perform rotation, scale, and translation.
+  // This is the model matrix where you're able to perform rotation, scale, and translation. (local space)
   //glm::mat4 model = glm::mat4( 1.0f );
   //model = glm::rotate( model, glm::radians( -55.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
   
-  // This is the view matrix where you're moving the camera away from the object specified by the third argument in glm::vec3.
+  // This is the view matrix where you're moving the camera away from the object specified by the third argument in glm::vec3. (view space)
   //glm::mat4 view( 1.0f );
   //view = glm::translate( view, glm::vec3( 0.0f, 0.0f, -3.0f ) );
   
   // This is the projection matrix where it creates a fustrum (a space used to render objects on)
   // and if outside of the fustrum, objects become clipped preventing from being rendered onto the screen
   //glm::mat4 projection;
-  //projection = glm::perspective( glm::radians( 45.0f ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f );
+  //projection = glm::perspective( glm::radians( FOV ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, NEAR_PLANE, FAR_PLANE );
+  // To be written a vertex shader file, must do it this way in order for it to be rendered correctly. vec4 is local space.
+  //gl_Position = projection * view * model * vec4(vPos, 1.0);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED ); /* Hides the cursor and sets it in the middles of the window */
 
   /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////////
   while( !(glfwWindowShouldClose( window ) ) )
   {
     processInput( window );
+    glfwSetCursorPosCallback(window, mouseCallback); 
 
     glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     texture_obj1.activateTexture();
     texture_obj2.activateTexture();
-
-    //glm::mat4 transR = glm::mat4( 1.0f );
-    //transR = glm::translate( transR, glm::vec3( 0.5f, -0.5f, 0.0f ) );
-    //transR = glm::rotate( transR, (float)glfwGetTime(), glm::vec3( 0.0, 0.0, 1.0 ) );
+    
     glm::mat4 model = glm::mat4( 1.0f );
-    glm::mat4 view = glm::mat4( 1.0f );
-    glm::mat4 projection = glm::mat4( 1.0f );
     
     model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
-    view = glm::translate( view, glm::vec3( 0.0f, 0.0f, -3.0f ) );
-    projection = glm::perspective( glm::radians( 45.0f ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f );
+    camera.move();
+    
 
     shader.use();
     shader.bindArray();
 
     int model_loc = glGetUniformLocation( shader.shader_id, "model" );
     glUniformMatrix4fv( model_loc, 1, GL_FALSE, glm::value_ptr( model ) );
-
+    
     int view_loc = glGetUniformLocation( shader.shader_id, "view" );
-    glUniformMatrix4fv( view_loc, 1, GL_FALSE, glm::value_ptr( view ) );
+    glUniformMatrix4fv( view_loc, 1, GL_FALSE, glm::value_ptr( camera.view ) );
 
     int projection_loc = glGetUniformLocation( shader.shader_id, "projection" );
-    glUniformMatrix4fv( projection_loc, 1, GL_FALSE, glm::value_ptr( projection ) );
-
-    //glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+    glUniformMatrix4fv( projection_loc, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
+    
     for( unsigned int i = 0; i < 10; ++i )
     {
       glm::mat4 model = glm::mat4( 1.0f );
@@ -160,6 +170,11 @@ int main()
 
       glDrawArrays( GL_TRIANGLES, 0, 36 );
     }
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
+
 
     glfwSwapBuffers( window );
     glfwPollEvents();
@@ -175,14 +190,49 @@ int main()
 //////////////////////////////////////////FUNCTION DEFINITIONS////////////////////////////////////////////
 void processInput( GLFWwindow *window )
 {
+  const float cameraSpeed = 3.0f * deltaTime;
   if( glfwGetKey( window, GLFW_KEY_ESCAPE) == GLFW_PRESS )
   {
     glfwSetWindowShouldClose( window, true );
   }
+  if( glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS )
+  {
+    //std::cout << "Moving forward\n";
+    camera.position += cameraSpeed * camera.front;
+  }
+  if( glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS )
+  {
+    //std::cout << "Moving Back\n";
+    camera.position -= cameraSpeed * camera.front;
+  }
+  if( glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS )
+  {
+    //std::cout << "Moving left\n";
+    camera.position -= glm::normalize( glm::cross( camera.front, camera.up ) ) * cameraSpeed;
+  }
+  if( glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS )
+  {
+    //std::cout << "Moving right\n";
+    camera.position += glm::normalize( glm::cross( camera.front, camera.up ) ) * cameraSpeed;
+  }
+  
 }
 
 void framebuffer_size_callback( GLFWwindow *window, int width, int height )
 {
   glViewport( 0, 0, width, height );
+}
+/* This function will calculate the camera's current direciton vector after mouse updates */
+void mouseCallback( GLFWwindow * window, double xPos, double yPos )
+{
+  /* The first step is to calculate the mouse's offset sine the last frame */
+  float xOffset = xPos - lastX;
+  float yOffset = lastY - yPos; /* reversed since y-coordinates range from bottom to top */
+  lastX = xPos;
+  lastY = yPos;
+
+  const float sensitivity = 0.1f;
+  xOffset *= sensitivity;
+  yOffset *= sensitivity;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
