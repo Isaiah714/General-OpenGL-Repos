@@ -25,24 +25,25 @@ Camera::Camera() {
   this->right = glm::cross( upVec, direction );                               /* We do cross product of the up vector and direction vector to get the right vector   */
   this->up = glm::cross( right, direction );                                  /* Same idea when obtaining the right vector                                           */
   this->view = glm::lookAt( this->position, target + this->front, this->up ); /* This matrix allows rotation and translation using the three vectors we just created */
-  yaw__ = -90.0f;                                                             /* yaw corresponds to rotating on the x axis  */
-  pitch__ = 0.0f;                                                             /* pitch correspondsto rotating on the z axis */
-
-  /*
-  This section allows the camera to be able to look around. The direction vector will be changed completely 
-  Here we use trigonometry to successfully create a rotating camera. We have to multiply cosine pitch to
-  the x and z axes since it's influenced when trying to obtain rotation on the y axis  
-  */
-  this->direction.x = cos( glm::radians( yaw__ ) ) * cos( glm::radians( pitch__ ) );
-  this->direction.y = sin( glm::radians( pitch__ ) );
-  this->direction.z = sin( glm::radians( yaw__ ) ) * cos( glm::radians( pitch__ ) );
-
+  this->yaw = -90.0f;                                                         /* yaw corresponds to rotating on the x axis                                           */
+  this->pitch = 0.0f;                                                         /* pitch correspondsto rotating on the z axis                                          */
+  this->firstMouse = true;                                                    /* Prevents a big movement jump when focusing on the window                            */
 }
 
 Camera::~Camera() noexcept {}
 
 void Camera::move()
 {
+  /*
+  This section allows the camera to be able to look around. The direction vector will be changed completely 
+  Here we use trigonometry to successfully create a rotating camera. We have to multiply cosine pitch to
+  the x and z axes since it's influenced when trying to obtain rotation on the y axis  
+  */
+  this->direction.x = cos( glm::radians( this->yaw ) ) * cos( glm::radians( this->pitch ) ); /* To up and down */
+  this->direction.y = sin( glm::radians( this->pitch ) );                                    /* To look left and right*/
+  this->direction.z = sin( glm::radians( this->yaw ) ) * cos( glm::radians( this->pitch ) ); /* To up and down */
+  this->front = glm::normalize(this->direction);
+
   glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
   this->view = glm::lookAt( this->position, this->position + this->front, this->up );
   this->projection = glm::perspective( glm::radians( FOV ), WINDOW_WIDTH / WINDOW_HEIGHT, NEAR_PLANE, FAR_PLANE );

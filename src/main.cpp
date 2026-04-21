@@ -128,13 +128,14 @@ int main()
   //gl_Position = projection * view * model * vec4(vPos, 1.0);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  glfwSetCursorPosCallback(window, mouseCallback); 
   glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED ); /* Hides the cursor and sets it in the middles of the window */
 
   /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////////
   while( !(glfwWindowShouldClose( window ) ) )
   {
     processInput( window );
-    glfwSetCursorPosCallback(window, mouseCallback); 
+    //glfwSetCursorPosCallback(window, mouseCallback); 
 
     glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -225,6 +226,12 @@ void framebuffer_size_callback( GLFWwindow *window, int width, int height )
 /* This function will calculate the camera's current direciton vector after mouse updates */
 void mouseCallback( GLFWwindow * window, double xPos, double yPos )
 {
+  if(camera.firstMouse) 
+  {
+    lastX = static_cast<float>(xPos);
+    lastY = static_cast<float>(yPos);
+    camera.firstMouse = false;
+  }
   /* The first step is to calculate the mouse's offset sine the last frame */
   float xOffset = xPos - lastX;
   float yOffset = lastY - yPos; /* reversed since y-coordinates range from bottom to top */
@@ -234,5 +241,13 @@ void mouseCallback( GLFWwindow * window, double xPos, double yPos )
   const float sensitivity = 0.1f;
   xOffset *= sensitivity;
   yOffset *= sensitivity;
+
+  camera.yaw -= xOffset;
+  camera.pitch -= yOffset;
+
+  if( camera.pitch >  89.0f ) camera.pitch =  89.0f;
+  if( camera.pitch < -89.0f ) camera.pitch = -89.0f;
+
+  camera.move();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
