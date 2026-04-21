@@ -73,19 +73,21 @@ int main()
     glm::vec3( 1.5f,  2.0f, -2.5f), 
     glm::vec3( 1.5f,  0.2f, -1.5f), 
     glm::vec3(-1.3f,  1.0f, -1.5f)  
-};
+  };
+  glm::vec3 toyColor = glm::vec3( 1.0f, 0.5f, 0.31 );
+  glm::vec3 lightColor = glm::vec3( 0.33f, 0.42f, 0.18f );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
   ///////////////////////////////////CREATING TEXTURES HERE///////////////////////////////////////////////
-  Texture texture_obj1( "metal", 0 );
+  /*Texture texture_obj1( "metal", 0 );
   texture_obj1.loadTexture( "../textures/tiles.jpg" );
   texture_obj1.getTextureLocation( shader );
 
   Texture texture_obj2( "tennis", 1 );
   texture_obj2.overlapTexture( "../textures/supamario.png" );
-  texture_obj2.getTextureLocation( shader );
+  texture_obj2.getTextureLocation( shader );*/
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -113,19 +115,19 @@ int main()
 
   ///////////////////////////////////////////GOING 3D/////////////////////////////////////////////////////
   // This is the model matrix where you're able to perform rotation, scale, and translation. (local space)
-  //glm::mat4 model = glm::mat4( 1.0f );
-  //model = glm::rotate( model, glm::radians( -55.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
+  // glm::mat4 model = glm::mat4( 1.0f );
+  // model = glm::rotate( model, glm::radians( -55.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
   
   // This is the view matrix where you're moving the camera away from the object specified by the third argument in glm::vec3. (view space)
-  //glm::mat4 view( 1.0f );
-  //view = glm::translate( view, glm::vec3( 0.0f, 0.0f, -3.0f ) );
+  // glm::mat4 view( 1.0f );
+  // view = glm::translate( view, glm::vec3( 0.0f, 0.0f, -3.0f ) );
   
   // This is the projection matrix where it creates a fustrum (a space used to render objects on)
   // and if outside of the fustrum, objects become clipped preventing from being rendered onto the screen
-  //glm::mat4 projection;
-  //projection = glm::perspective( glm::radians( FOV ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, NEAR_PLANE, FAR_PLANE );
+  // glm::mat4 projection;
+  // projection = glm::perspective( glm::radians( FOV ), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, NEAR_PLANE, FAR_PLANE );
   // To be written a vertex shader file, must do it this way in order for it to be rendered correctly. vec4 is local space.
-  //gl_Position = projection * view * model * vec4(vPos, 1.0);
+  // gl_Position = projection * view * model * vec4(vPos, 1.0);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   glfwSetCursorPosCallback(window, mouseCallback); 
@@ -135,22 +137,22 @@ int main()
   while( !(glfwWindowShouldClose( window ) ) )
   {
     processInput( window );
-    //glfwSetCursorPosCallback(window, mouseCallback); 
+    camera.move();
 
     glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    texture_obj1.activateTexture();
-    texture_obj2.activateTexture();
+    /*texture_obj1.activateTexture();
+    texture_obj2.activateTexture();*/
     
     glm::mat4 model = glm::mat4( 1.0f );
     
-    model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
-    camera.move();
-    
+    model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );    
 
     shader.use();
     shader.bindArray();
+    shader.setColor("toyColor", toyColor );
+    shader.setColor("lightColor", lightColor );
 
     int model_loc = glGetUniformLocation( shader.shader_id, "model" );
     glUniformMatrix4fv( model_loc, 1, GL_FALSE, glm::value_ptr( model ) );
@@ -175,12 +177,10 @@ int main()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-
-
     glfwSwapBuffers( window );
     glfwPollEvents();
   }
-
+  std::cout << camera.position.x << camera.position.y << camera.position.z;
   glfwTerminate();
   return 0;
 }
@@ -226,13 +226,16 @@ void framebuffer_size_callback( GLFWwindow *window, int width, int height )
 /* This function will calculate the camera's current direciton vector after mouse updates */
 void mouseCallback( GLFWwindow * window, double xPos, double yPos )
 {
-  if(camera.firstMouse) 
+  if(camera.firstMouse) /* This condition prevents the mouse from being snapped to the side */
   {
+    /* lastX & lastY set the initial position of the cursor (center of the window) before calculating the offset */
+    /* Without this initial set position, the program have the camera angle start looking away from the origin */
     lastX = static_cast<float>(xPos);
     lastY = static_cast<float>(yPos);
     camera.firstMouse = false;
   }
-  /* The first step is to calculate the mouse's offset sine the last frame */
+  /* Now we are calculating offsets so the camera can turn smoothly and accurately */
+  /* The first step is to calculate the mouse's offset since the last frame */
   float xOffset = xPos - lastX;
   float yOffset = lastY - yPos; /* reversed since y-coordinates range from bottom to top */
   lastX = xPos;

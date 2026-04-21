@@ -3,6 +3,7 @@
 
 #include "../lib/include/glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -18,8 +19,9 @@ class Shader
 
   void use();
 
-  void setInt  ( const std::string & name, int value   ) const;
-  void setFloat( const std::string & name, float value ) const;
+  void setInt  ( const std::string & name, int value         ) const;
+  void setFloat( const std::string & name, float value       ) const;
+  void setColor( const std::string & name, glm::vec3 & value ) const;
 
   void bindArray();
 
