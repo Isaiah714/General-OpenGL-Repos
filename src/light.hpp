@@ -18,7 +18,6 @@ class LightSource
  ~LightSource() noexcept;
 
 	void use();
-	void bindArray();
 	void setColor( const std::string & name, glm::vec3 & value );
 
   private:

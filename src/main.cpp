@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "textureclass.hpp"
 #include "camera.hpp"
+#include "light.hpp"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
@@ -55,9 +56,15 @@ int main()
     glfwTerminate();
     return -1;
   }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   glEnable( GL_DEPTH_TEST );
+
+  /////////////////////////////////////////CEATING A LIGHT SOURCE/////////////////////////////////////////
+  LightSource light("../shaders/light.vs", "../shaders/light.fs");
+  glm::vec3 lightColor = glm::vec3( 1.0f, 1.0f, 1.0f );
+  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////PASSING DATA TO SHADERS && CREATING SHADERS HERE////////////////////////////
   Shader shader( "../shaders/vertexshader.vs", "../shaders/fragmentshader.fs" );
@@ -74,8 +81,7 @@ int main()
     glm::vec3( 1.5f,  0.2f, -1.5f), 
     glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
-  glm::vec3 toyColor = glm::vec3( 1.0f, 0.5f, 0.31 );
-  glm::vec3 lightColor = glm::vec3( 0.33f, 0.42f, 0.18f );
+  glm::vec3 objectColor = glm::vec3( 0.26, 0.68, 0.02 );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -134,12 +140,16 @@ int main()
   glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED ); /* Hides the cursor and sets it in the middles of the window */
 
   /////////////////////////////////////////GAME LOOP//////////////////////////////////////////////////////
-  while( !(glfwWindowShouldClose( window ) ) )
+  while( !(glfwWindowShouldClose( window )) )
   {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     processInput( window );
     camera.move();
 
-    glClearColor( 0.0f, 0.2f, 0.2f, 1.0f );
+    glClearColor( 0.05, 0.08, 0.11, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     /*texture_obj1.activateTexture();
@@ -147,12 +157,14 @@ int main()
     
     glm::mat4 model = glm::mat4( 1.0f );
     
-    model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );    
+    //model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
+    model = glm::translate( model, glm::vec3( 0.0f, 0.8f, -5.0f ) );
 
     shader.use();
     shader.bindArray();
-    shader.setColor("toyColor", toyColor );
-    shader.setColor("lightColor", lightColor );
+    shader.setFloat3( "objectColor", objectColor );
+    shader.setFloat3( "lightColor", lightColor );
+    shader.setFloat3( "lightPos", lightPos );
 
     int model_loc = glGetUniformLocation( shader.shader_id, "model" );
     glUniformMatrix4fv( model_loc, 1, GL_FALSE, glm::value_ptr( model ) );
@@ -162,8 +174,39 @@ int main()
 
     int projection_loc = glGetUniformLocation( shader.shader_id, "projection" );
     glUniformMatrix4fv( projection_loc, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
-    
-    for( unsigned int i = 0; i < 10; ++i )
+
+    glDrawArrays( GL_TRIANGLES, 0, 36 );
+
+    glm::mat4 lightModel = glm::mat4( 1.0f );
+
+    light.use();
+    light.setColor( "lightColor", lightColor );
+
+    lightModel = glm::translate( lightModel, glm::vec3( 3.0f, 0.8f, -10.0f ) );
+
+    int lightModel_loc = glGetUniformLocation( light.ID, "lightModel");
+    glUniformMatrix4fv( lightModel_loc, 1, GL_FALSE, glm::value_ptr( lightModel ) );
+
+    int lightView_loc = glGetUniformLocation( light.ID, "lightView");
+    glUniformMatrix4fv( lightView_loc, 1, GL_FALSE, glm::value_ptr( camera.view ) );
+
+    int lightProjection_loc = glGetUniformLocation( light.ID, "lightProjection" );
+    glUniformMatrix4fv( lightProjection_loc, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
+
+    model = glm::translate(model, lightPos);
+    model = glm::scale(model, glm::vec3(0.2f));
+
+    glDrawArrays( GL_TRIANGLES, 0, 36 );
+
+    glfwSwapBuffers( window );
+    glfwPollEvents();
+  }
+  glfwTerminate();
+  return 0;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*for( unsigned int i = 0; i < 10; ++i )
     {
       glm::mat4 model = glm::mat4( 1.0f );
       model = glm::translate( model, cubePositions[i] );
@@ -172,21 +215,7 @@ int main()
       glUniformMatrix4fv( model_loc, 1, GL_FALSE, glm::value_ptr( model ) );
 
       glDrawArrays( GL_TRIANGLES, 0, 36 );
-    }
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
-
-    glfwSwapBuffers( window );
-    glfwPollEvents();
-  }
-  std::cout << camera.position.x << camera.position.y << camera.position.z;
-  glfwTerminate();
-  return 0;
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+    }*/
 
 //////////////////////////////////////////FUNCTION DEFINITIONS////////////////////////////////////////////
 void processInput( GLFWwindow *window )

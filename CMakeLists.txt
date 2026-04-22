@@ -10,6 +10,7 @@ add_executable(opengl src/main.cpp
                       src/shaderclass.cpp
                       src/textureclass.cpp
                       src/camera.cpp
+                      src/light.cpp
                       lib/src/glad.c
                       lib/include/stb_image/stb_image.cpp)
 

@@ -1,5 +1,7 @@
 #include "light.hpp"
 
+LightSource::~LightSource() noexcept {}
+
 LightSource::LightSource( const std::string & vPath, const std::string & fPath )
 {
 	std::string v_shader_code;
@@ -108,6 +110,7 @@ float vertices[] = {
 
 	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ), (void*)0 );
 	glEnableVertexAttribArray( 0 );
+  glBindVertexArray( VAO__ );
 }
 
 void LightSource::use()
@@ -115,14 +118,9 @@ void LightSource::use()
 	glUseProgram( ID );
 }
 
-void LightSource::bindArray()
-{
-	glBindVertexArray( VAO__ );
-}
-
 void LightSource::setColor( const std::string & name, glm::vec3 & value)
 {
-	glUniform3f( glGetUniformLocation( ID, "ligthColor"), value.x, value.y, value.z );
+	glUniform3f( glGetUniformLocation( ID, "lightColor"), value.x, value.y, value.z );
 }
 
 void LightSource::getCompileStatus( unsigned int shader, std::string type )

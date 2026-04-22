@@ -1,8 +1,12 @@
-version 430 core
+#version 430 core
 
-layout (locaiton = 0) in vec3 vPos;
+layout (location = 0) in vec3 vPos;
 
 uniform mat4 lightModel;
 uniform mat4 lightView;
+uniform mat4 lightProjection;
 
-// left off here.....
+void main()
+{
+  gl_Position = lightProjection * lightView * lightModel * vec4(vPos, 1.0);
+}
