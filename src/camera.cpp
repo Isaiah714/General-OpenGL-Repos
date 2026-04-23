@@ -42,11 +42,11 @@ void Camera::move()
   this->direction.x = cos( glm::radians( this->yaw ) ) * cos( glm::radians( this->pitch ) ); /* To up and down */
   this->direction.y = sin( glm::radians( this->pitch ) );                                    /* To look left and right*/
   this->direction.z = sin( glm::radians( this->yaw ) ) * cos( glm::radians( this->pitch ) ); /* To up and down */
-  this->front = glm::normalize(this->direction);
+  this->front = glm::normalize( this->direction );
 
   this->projection = glm::mat4( 1.0f );
 
-  glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 target = glm::vec3( 0.0f, 0.0f, 0.0f );
   this->view = glm::lookAt( this->position, this->position + this->front, this->up );
   this->projection = glm::perspective( glm::radians( FOV ), WINDOW_WIDTH / WINDOW_HEIGHT, NEAR_PLANE, FAR_PLANE );
 }

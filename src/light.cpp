@@ -14,7 +14,7 @@ LightSource::LightSource( const std::string & vPath, const std::string & fPath )
 
   try
   {
-    vertex_file.open  ( vPath   );
+    vertex_file.open  ( vPath );
     fragment_file.open( fPath );
 
     std::stringstream vertex_file_stream;

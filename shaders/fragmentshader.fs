@@ -19,6 +19,7 @@ uniform sampler2D tennis;
 uniform vec3 objectColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
+uniform vec3 viewPos; // For specular lighting calculation
 
 void main()
 {
@@ -41,9 +42,15 @@ void main()
 
   float diff = max(dot(norm, lightDir), 0.0); // This is to calculate the diffuse impact, we use max to prevent undefined colors
   vec3 diffuse = diff * lightColor; // This is to obtain the diffuse component
-
   result = (ambient + diffuse) * objectColor; // The last step to apply diffuse lighting 
+  
+  // This is how to calculate specular lighting
+  float specularStrength = 0.5f;
+  vec3 viewDirection = normalize(viewPos - fragPos);
+  vec3 reflectDirection = reflect(-lightDir, norm);
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
+  vec3 specular = specularStrength * spec * lightColor;
+  result = (ambient + diffuse + specular) * objectColor;
   FragColor = vec4(result, 1.0f);
-
 
 }

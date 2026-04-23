@@ -82,6 +82,7 @@ int main()
     glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
   glm::vec3 objectColor = glm::vec3( 0.26, 0.68, 0.02 );
+  //glm::vec3 objectColor = glm::vec3( 0.1f, 0.1f, 0.1f );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -158,13 +159,14 @@ int main()
     glm::mat4 model = glm::mat4( 1.0f );
     
     //model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
-    model = glm::translate( model, glm::vec3( 0.0f, 0.8f, -5.0f ) );
+    model = glm::translate( model, glm::vec3( 3.0f, 5.0f, -15.0f ) );
 
     shader.use();
     shader.bindArray();
     shader.setFloat3( "objectColor", objectColor );
     shader.setFloat3( "lightColor", lightColor );
     shader.setFloat3( "lightPos", lightPos );
+    shader.setFloat3( "viewPos", camera.position );
 
     int model_loc = glGetUniformLocation( shader.shader_id, "model" );
     glUniformMatrix4fv( model_loc, 1, GL_FALSE, glm::value_ptr( model ) );
@@ -193,9 +195,6 @@ int main()
     int lightProjection_loc = glGetUniformLocation( light.ID, "lightProjection" );
     glUniformMatrix4fv( lightProjection_loc, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
 
-    model = glm::translate(model, lightPos);
-    model = glm::scale(model, glm::vec3(0.2f));
-
     glDrawArrays( GL_TRIANGLES, 0, 36 );
 
     glfwSwapBuffers( window );
@@ -220,7 +219,7 @@ int main()
 //////////////////////////////////////////FUNCTION DEFINITIONS////////////////////////////////////////////
 void processInput( GLFWwindow *window )
 {
-  const float cameraSpeed = 3.0f * deltaTime;
+  const float cameraSpeed = 4.0f * deltaTime;
   if( glfwGetKey( window, GLFW_KEY_ESCAPE) == GLFW_PRESS )
   {
     glfwSetWindowShouldClose( window, true );
@@ -245,7 +244,16 @@ void processInput( GLFWwindow *window )
     //std::cout << "Moving right\n";
     camera.position += glm::normalize( glm::cross( camera.front, camera.up ) ) * cameraSpeed;
   }
-  
+  if( glfwGetKey( window, GLFW_KEY_Q ) == GLFW_PRESS )
+  {
+    camera.position.y += cameraSpeed;
+    //std::cout << "Moving down\n";
+  }
+  if( glfwGetKey( window, GLFW_KEY_E ) == GLFW_PRESS )
+  {
+    camera.position.y -= cameraSpeed;
+    //std::cout << "Moving up\n";
+  }
 }
 
 void framebuffer_size_callback( GLFWwindow *window, int width, int height )

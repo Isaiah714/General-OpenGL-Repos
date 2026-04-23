@@ -19,9 +19,18 @@ void main()
   // Need to multiply the matrix from right to left since opengl is right handed
   // This is the final piece to render an object in a 3D aspect
   gl_Position = projection * view * model * vec4(vPos, 1.0);
+
   fragPos = vec3(model * vec4(vPos, 1.0f)); // This obtains the fragments position in world space, an important step in diffuse lighting
-  normal = mat3(transpose(inverse(model))) * aNormal; // This is to get the normal matrix
-  normal = aNormal; // initializing all normal vectors from the cube
+  //normal = aNormal; // initializing all normal vectors from the cube
+
+  // This piece of code prevents the lighting from breaking when doing non-uniform scaling
+  // Taking the inverse of the matrix helps counteract the stretching caused by non-uniform scaling
+  // Takeing the transpose of the matrix helps reshape the transformation so the vectors can correctly
+  // be perpindicular to the objects surfaces. transpose and inverse must be a combined operation for success
+  // The downside of doing this operation is it's very expensive on the GPU side. So try to avoid doing this here
+  normal = mat3(transpose(inverse(model))) * aNormal;
+
+
   //ourColor = vColor;
   //TextureCoord = aTexture;
 }
