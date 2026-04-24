@@ -214,7 +214,7 @@ int main()
     glm::mat4 lightModel2 = glm::mat4( 1.0f );
 
     light2.use();
-    light2.setColor( "lightColor", lightColor2 );
+    light2.setColor( "lightColor2", lightColor2 );
 
     lightPos2.y = sin( glfwGetTime() * 1.0f );
     lightPos2.x = cos( glfwGetTime() * 1.0f );
@@ -232,9 +232,6 @@ int main()
     glUniformMatrix4fv( lightProjection_loc2, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
 
     glDrawArrays( GL_TRIANGLES, 0, 36 );
-
-
-
 
     glfwSwapBuffers( window );
     glfwPollEvents();
