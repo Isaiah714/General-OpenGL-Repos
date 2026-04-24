@@ -21,14 +21,14 @@ void main()
   gl_Position = projection * view * model * vec4(vPos, 1.0);
 
   fragPos = vec3(model * vec4(vPos, 1.0f)); // This obtains the fragments position in world space, an important step in diffuse lighting
-  //normal = aNormal; // initializing all normal vectors from the cube
+  normal = aNormal; // initializing all normal vectors from the cube
 
   // This piece of code prevents the lighting from breaking when doing non-uniform scaling
   // Taking the inverse of the matrix helps counteract the stretching caused by non-uniform scaling
   // Takeing the transpose of the matrix helps reshape the transformation so the vectors can correctly
   // be perpindicular to the objects surfaces. transpose and inverse must be a combined operation for success
   // The downside of doing this operation is it's very expensive on the GPU side. So try to avoid doing this here
-  normal = mat3(transpose(inverse(model))) * aNormal;
+  //normal = mat3(transpose(inverse(model))) * aNormal;
 
 
   //ourColor = vColor;

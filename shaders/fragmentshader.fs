@@ -19,10 +19,18 @@ uniform sampler2D tennis;
 uniform vec3 objectColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
+uniform vec3 lightColor2;
+uniform vec3 lightPos2;
 uniform vec3 viewPos; // For specular lighting calculation
 
-void main()
-{
+vec3 calculateLight(vec3 lightColor);
+
+void main() {
+  vec3 result = calculateLight(lightColor);
+  FragColor = vec4(result, 1.0f);
+}
+
+vec3 calculateLight(vec3 lightColor) {
   //FragColor = texture(ourTexture, TextureCoord) * vec4( ourColor, 1.0 ); - gives the rainbow gradient effect
   //FragColor = texture(ourTexture, TextureCoord);
   //FragColor = mix(texture(metal, TextureCoord), texture(tennis, vec2(TextureCoord.x, TextureCoord.y)), 0.2);
@@ -30,7 +38,7 @@ void main()
   //else if(toyColor.x == 0 && lightColor.x == 0) FragColor = vec3(0.0f, 1.0f, 0.0);
 
   // This is how to calculate ambient lighting
-  float ambientStrength = 0.1;
+  float ambientStrength = 0.1f;
   vec3 ambient = ambientStrength * lightColor;
   vec3 result = ambient * objectColor;
   //FragColor = vec4(result, 1.0f); // To output the ambient lighting effect
@@ -41,16 +49,18 @@ void main()
   vec3 lightDir = normalize(lightPos - fragPos);
 
   float diff = max(dot(norm, lightDir), 0.0); // This is to calculate the diffuse impact, we use max to prevent undefined colors
+  //lightColor *= 1.5f // This adjust the brightness of the color
   vec3 diffuse = diff * lightColor; // This is to obtain the diffuse component
   result = (ambient + diffuse) * objectColor; // The last step to apply diffuse lighting 
   
   // This is how to calculate specular lighting
-  float specularStrength = 0.5f;
+  float specularStrength = 10.0f;
   vec3 viewDirection = normalize(viewPos - fragPos);
   vec3 reflectDirection = reflect(-lightDir, norm);
-  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32); // The 32 is the brightness value
   vec3 specular = specularStrength * spec * lightColor;
   result = (ambient + diffuse + specular) * objectColor;
-  FragColor = vec4(result, 1.0f);
-
+  //float exposure = 1.1f;
+  //result *= exposure;
+  return result;
 }

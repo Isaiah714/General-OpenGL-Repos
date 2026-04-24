@@ -62,8 +62,11 @@ int main()
 
   /////////////////////////////////////////CEATING A LIGHT SOURCE/////////////////////////////////////////
   LightSource light("../shaders/light.vs", "../shaders/light.fs");
-  glm::vec3 lightColor = glm::vec3( 1.0f, 1.0f, 1.0f );
-  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  LightSource light2("../shaders/light.vs", "../shaders/light.fs");
+  glm::vec3 lightColor = glm::vec3( 1.0f, 1.0f, 0.0f );
+  glm::vec3 lightColor2 = glm::vec3( 1.0f, 0.0f, 1.0f );
+  glm::vec3 lightPos( 0.0, 0.0f, -10.0 );
+  glm::vec3 lightPos2( 0.0, 10.0f, 0.0f );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////PASSING DATA TO SHADERS && CREATING SHADERS HERE////////////////////////////
@@ -81,7 +84,8 @@ int main()
     glm::vec3( 1.5f,  0.2f, -1.5f), 
     glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
-  glm::vec3 objectColor = glm::vec3( 0.26, 0.68, 0.02 );
+  glm::vec3 objectColor = glm::vec3( 0.1, 0.1, 0.1 );
+  glm::vec3 objectPos = glm::vec3( 0.0f, 0.0f, 0.0f );
   //glm::vec3 objectColor = glm::vec3( 0.1f, 0.1f, 0.1f );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,14 +162,16 @@ int main()
     
     glm::mat4 model = glm::mat4( 1.0f );
     
+    model = glm::translate( model, objectPos );
     //model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
-    model = glm::translate( model, glm::vec3( 3.0f, 5.0f, -15.0f ) );
 
     shader.use();
     shader.bindArray();
     shader.setFloat3( "objectColor", objectColor );
     shader.setFloat3( "lightColor", lightColor );
     shader.setFloat3( "lightPos", lightPos );
+    shader.setFloat3( "lightColor2", lightColor2);
+    shader.setFloat3( "lightPos2", lightPos2);
     shader.setFloat3( "viewPos", camera.position );
 
     int model_loc = glGetUniformLocation( shader.shader_id, "model" );
@@ -182,9 +188,17 @@ int main()
     glm::mat4 lightModel = glm::mat4( 1.0f );
 
     light.use();
+    /*lightColor.x = sin( glfwGetTime() );
+    lightColor.y = sin( glfwGetTime() + (2 * glm::pi<float>() / 3) );
+    lightColor.z = sin( glfwGetTime() + (4 * glm::pi<float>() / 3) );*/
+
     light.setColor( "lightColor", lightColor );
 
-    lightModel = glm::translate( lightModel, glm::vec3( 3.0f, 0.8f, -10.0f ) );
+    lightPos.x = sin(glfwGetTime() * 1.0f);
+    lightPos.z = cos(glfwGetTime() * 1.0f);
+
+    lightModel = glm::translate( lightModel, lightPos );
+    lightModel = glm::scale( lightModel, glm::vec3( 0.2f ) );
 
     int lightModel_loc = glGetUniformLocation( light.ID, "lightModel");
     glUniformMatrix4fv( lightModel_loc, 1, GL_FALSE, glm::value_ptr( lightModel ) );
@@ -196,6 +210,31 @@ int main()
     glUniformMatrix4fv( lightProjection_loc, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
 
     glDrawArrays( GL_TRIANGLES, 0, 36 );
+
+    glm::mat4 lightModel2 = glm::mat4( 1.0f );
+
+    light2.use();
+    light2.setColor( "lightColor", lightColor2 );
+
+    lightPos2.y = sin( glfwGetTime() * 1.0f );
+    lightPos2.x = cos( glfwGetTime() * 1.0f );
+
+    lightModel2 = glm::translate( lightModel2, lightPos2 );
+    lightModel2 = glm::scale( lightModel2, glm::vec3(0.2f) );
+
+    int lightModel_loc2 = glGetUniformLocation( light2.ID, "lightModel");
+    glUniformMatrix4fv( lightModel_loc2, 1, GL_FALSE, glm::value_ptr( lightModel2 ) );
+
+    int lightView_loc2 = glGetUniformLocation( light2.ID, "lightView");
+    glUniformMatrix4fv( lightView_loc2, 1, GL_FALSE, glm::value_ptr( camera.view ) );
+
+    int lightProjection_loc2 = glGetUniformLocation( light2.ID, "lightProjection" );
+    glUniformMatrix4fv( lightProjection_loc2, 1, GL_FALSE, glm::value_ptr( camera.projection ) );
+
+    glDrawArrays( GL_TRIANGLES, 0, 36 );
+
+
+
 
     glfwSwapBuffers( window );
     glfwPollEvents();
