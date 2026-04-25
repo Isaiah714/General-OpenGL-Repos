@@ -7,8 +7,8 @@ layout (location = 1) in vec3 aNormal; // To obtain all normal vectors for the d
 
 out vec3 ourColor;
 out vec2 TextureCoord;
-out vec3 normal;
-out vec3 fragPos;
+out vec3 Normal;
+out vec3 FragPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -20,8 +20,8 @@ void main()
   // This is the final piece to render an object in a 3D aspect
   gl_Position = projection * view * model * vec4(vPos, 1.0);
 
-  fragPos = vec3(model * vec4(vPos, 1.0f)); // This obtains the fragments position in world space, an important step in diffuse lighting
-  normal = aNormal; // initializing all normal vectors from the cube
+  FragPos = vec3(model * vec4(vPos, 1.0f)); // This obtains the fragments position in world space, an important step in diffuse lighting
+  Normal = aNormal; // initializing all normal vectors from the cube
 
   // This piece of code prevents the lighting from breaking when doing non-uniform scaling
   // Taking the inverse of the matrix helps counteract the stretching caused by non-uniform scaling

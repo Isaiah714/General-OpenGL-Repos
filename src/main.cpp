@@ -84,12 +84,10 @@ int main()
     glm::vec3( 1.5f,  0.2f, -1.5f), 
     glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
-  glm::vec3 objectColor = glm::vec3( 0.1, 0.1, 0.1 );
+  glm::vec3 objectColor = glm::vec3( 0.5, 0.5, 0.5 );
   glm::vec3 objectPos = glm::vec3( 0.0f, 0.0f, 0.0f );
   //glm::vec3 objectColor = glm::vec3( 0.1f, 0.1f, 0.1f );
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
   ///////////////////////////////////CREATING TEXTURES HERE///////////////////////////////////////////////
   /*Texture texture_obj1( "metal", 0 );
@@ -100,8 +98,6 @@ int main()
   texture_obj2.overlapTexture( "../textures/supamario.png" );
   texture_obj2.getTextureLocation( shader );*/
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
   ////////////////////////////TRANSLATIONS, SCALING, AND ROTATIONS HERE///////////////////////////////////
   // Important Note: when multiplying matrices, it is important to multiply each modification in order.
@@ -163,7 +159,7 @@ int main()
     glm::mat4 model = glm::mat4( 1.0f );
     
     model = glm::translate( model, objectPos );
-    //model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
+    model = glm::rotate( model, (float)glfwGetTime() * glm::radians( 50.0f ), glm::vec3( 0.5f, 1.0f, 0.0f ) );
 
     shader.use();
     shader.bindArray();
@@ -188,9 +184,9 @@ int main()
     glm::mat4 lightModel = glm::mat4( 1.0f );
 
     light.use();
-    /*lightColor.x = sin( glfwGetTime() );
+    lightColor.x = sin( glfwGetTime() );
     lightColor.y = sin( glfwGetTime() + (2 * glm::pi<float>() / 3) );
-    lightColor.z = sin( glfwGetTime() + (4 * glm::pi<float>() / 3) );*/
+    lightColor.z = sin( glfwGetTime() + (4 * glm::pi<float>() / 3) );
 
     light.setColor( "lightColor", lightColor );
 
@@ -199,6 +195,7 @@ int main()
 
     lightModel = glm::translate( lightModel, lightPos );
     lightModel = glm::scale( lightModel, glm::vec3( 0.2f ) );
+    //lightModel = glm::rotate( lightModel, static_cast<float>(glfwGetTime()) * glm::radians( -50.0f ), glm::vec3( 0.0f, 1.0f, 0.0f) );
 
     int lightModel_loc = glGetUniformLocation( light.ID, "lightModel");
     glUniformMatrix4fv( lightModel_loc, 1, GL_FALSE, glm::value_ptr( lightModel ) );
@@ -221,6 +218,7 @@ int main()
 
     lightModel2 = glm::translate( lightModel2, lightPos2 );
     lightModel2 = glm::scale( lightModel2, glm::vec3(0.2f) );
+    //lightModel2 = glm::rotate( lightModel, static_cast<float>(glfwGetTime()) * glm::radians( -50.0f ), glm::vec3( 0.0f, 0.0f, 1.0f) );
 
     int lightModel_loc2 = glGetUniformLocation( light2.ID, "lightModel");
     glUniformMatrix4fv( lightModel_loc2, 1, GL_FALSE, glm::value_ptr( lightModel2 ) );

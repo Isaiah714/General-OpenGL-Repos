@@ -24,12 +24,14 @@ uniform vec3 lightPos2;
 uniform vec3 viewPos; // For specular lighting calculation
 
 vec3 calculateLight(vec3 lColor, vec3 lPos, vec3 normal, vec3 fragPos, vec3 vPos);
+vec3 calculateLight(vec3 lColor);
 
 void main() {
   vec3 result = calculateLight(lightColor, lightPos, Normal, FragPos, viewPos);
+  //vec3 result = calculateLight(lightColor);
   result += calculateLight(lightColor2, lightPos2, Normal, FragPos, viewPos);
-  vec3 final = result * objectColor;
-  FragColor = vec4(final, 1.0f);
+  result *= objectColor;
+  FragColor = vec4(result, 1.0f);
 }
 
 vec3 calculateLight(vec3 lColor, vec3 lPos, vec3 normal, vec3 fragPos, vec3 vPos) {
@@ -59,10 +61,33 @@ vec3 calculateLight(vec3 lColor, vec3 lPos, vec3 normal, vec3 fragPos, vec3 vPos
   float specularStrength = 10.0f;
   vec3 viewDirection = normalize(vPos - fragPos);
   vec3 reflectDirection = reflect(-lightDir, norm);
-  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32); // The 32 is the brightness value
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 64); // The 32 is the brightness value
   vec3 specular = specularStrength * spec * lColor;
   result = (ambient + diffuse + specular) * objectColor;
   //float exposure = 1.1f;
   //result *= exposure;
+  return result;
+}
+
+vec3 calculateLight(vec3 lColor) {
+  float ambientStrength = 0.1f;
+  vec3 ambient = ambientStrength * lColor;
+  vec3 result = ambient * objectColor;
+
+  vec3 norm = normalize(Normal);
+  vec3 lightDir = normalize(lightPos - FragPos);
+
+  float diff = max(dot(norm, lightDir), 0.0);
+
+  vec3 diffuse = diff * lColor;
+  result = (ambient + diffuse) * objectColor;
+
+  float specularStrength = 10.0f;
+  vec3 viewDirection = normalize(viewPos - FragPos);
+  vec3 reflectDirection = reflect(-lightDir, norm);
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
+  vec3 specular = specularStrength * spec * lColor;
+  result = (ambient + diffuse + specular) * objectColor;
+
   return result;
 }
