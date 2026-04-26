@@ -164,10 +164,10 @@ int main()
     shader.use();
     shader.bindArray();
     shader.setFloat3( "objectColor", objectColor );
-    shader.setFloat3( "lightColor", lightColor );
-    shader.setFloat3( "lightPos", lightPos );
-    shader.setFloat3( "lightColor2", lightColor2);
-    shader.setFloat3( "lightPos2", lightPos2);
+    shader.setFloat3( "lightColor", lightColor   );
+    shader.setFloat3( "lightPos", lightPos       );
+    shader.setFloat3( "lightColor2", lightColor2 );
+    shader.setFloat3( "lightPos2", lightPos2     );
     shader.setFloat3( "viewPos", camera.position );
 
     int model_loc = glGetUniformLocation( shader.shader_id, "model" );
@@ -184,7 +184,7 @@ int main()
     glm::mat4 lightModel = glm::mat4( 1.0f );
 
     light.use();
-    lightColor.x = sin( glfwGetTime() );
+    lightColor.x = sin( glfwGetTime()                              );
     lightColor.y = sin( glfwGetTime() + (2 * glm::pi<float>() / 3) );
     lightColor.z = sin( glfwGetTime() + (4 * glm::pi<float>() / 3) );
 

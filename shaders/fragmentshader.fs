@@ -61,7 +61,7 @@ vec3 calculateLight(vec3 lColor, vec3 lPos, vec3 normal, vec3 fragPos, vec3 vPos
   float specularStrength = 10.0f;
   vec3 viewDirection = normalize(vPos - fragPos);
   vec3 reflectDirection = reflect(-lightDir, norm);
-  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 64); // The 32 is the brightness value
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 64); // The 64 is the brightness value
   vec3 specular = specularStrength * spec * lColor;
   result = (ambient + diffuse + specular) * objectColor;
   //float exposure = 1.1f;
